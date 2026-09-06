@@ -1,0 +1,10 @@
+{
+  "extends": "../tsconfig.base.json",
+  "compilerOptions": {
+    "outDir": "../dist/lighthouse-tool"
+  },
+  "include": [
+    "src/**/*",
+    "bin/**/*"
+  ]
+}
