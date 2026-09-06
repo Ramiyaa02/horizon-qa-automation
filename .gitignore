@@ -15,6 +15,10 @@ test-results/
 coverage/
 lighthouse-reports/
 
+# Phase 1 discovery (throwaway scripts + screenshots, local only)
+discovery-artifacts/
+discovery.step*.mjs
+
 # OS files
 .DS_Store
 Thumbs.db
