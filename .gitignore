@@ -1,0 +1,24 @@
+# Dependencies
+node_modules/
+
+# Build output
+dist/
+
+# Environment / credentials
+.env
+.env.local
+.env.*.local
+
+# Test & report artifacts
+playwright-report/
+test-results/
+coverage/
+lighthouse-reports/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Editors (keep shared workspace settings out of the repo)
+.vscode/
+.idea/
