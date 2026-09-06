@@ -152,7 +152,12 @@ Planned (not yet implemented):
 - Page Object Model: `LanguageSelectionPage` (sidebar + language dropdowns)
   and `SignInPage` (login form).
 - Locator preference based on observed DOM:
-  1. `getByRole('button', { name: 'Log In' })` for the sidebar entry.
+  1. `getByText('Log In')` for the sidebar entry.
+     > Note: the originally documented candidate `getByRole('button', { name: 'Log In' })`
+     > was tested against the live application. The Log In element is exposed as a
+     > `<div>` with a generated class (`jss1058`), not as a `<button>` / `role="button"`.
+     > Therefore the role-based locator was rejected. Live DOM validation confirmed
+     > `getByText('Log In')` works. Do not use the generated `jss1058` class as a selector.
   2. `getByPlaceholder('Enter your Email')` / `getByPlaceholder('Enter your password')`
      for form fields (stable, user-visible, observed in DOM).
   3. `getByRole('button', { name: 'Login Now' })` for submit.
