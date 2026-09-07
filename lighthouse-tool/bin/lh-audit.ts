@@ -14,6 +14,7 @@ import { parseLighthouseResult } from '../src/parse-results';
 import { generateRecommendations, type Recommendation } from '../src/rule-engine';
 import { evaluateQualityGates, type QualityGateConfig, type QualityGatesResult } from '../src/gates';
 import { generateHtmlReport } from '../src/report/html';
+import { generateJsonReport } from '../src/report/json';
 
 function loadQualityGatesConfig(): QualityGateConfig {
   const configPath = path.resolve(__dirname, '..', 'config', 'quality-gates.json');
@@ -35,6 +36,24 @@ function writeHtmlReport(
 
   const html = generateHtmlReport(summary, recommendations, qualityGates);
   fs.writeFileSync(reportPath, html, 'utf-8');
+
+  return reportPath;
+}
+
+function writeJsonReport(
+  summary: ReturnType<typeof parseLighthouseResult>,
+  recommendations: Recommendation[],
+  qualityGates: QualityGatesResult
+): string {
+  const reportsDir = path.resolve(__dirname, '..', 'lighthouse-reports');
+  fs.mkdirSync(reportsDir, { recursive: true });
+
+  const timestamp = new Date().toISOString().replace(/[:.]/g, '-').replace('Z', '');
+  const filename = `report-${timestamp}.json`;
+  const reportPath = path.join(reportsDir, filename);
+
+  const json = generateJsonReport(summary, recommendations, qualityGates);
+  fs.writeFileSync(reportPath, json, 'utf-8');
 
   return reportPath;
 }
@@ -120,6 +139,10 @@ async function main(): Promise<void> {
     const reportPath = writeHtmlReport(summary, recommendations, qualityGatesResult);
     console.log('');
     console.log(`HTML report:\n${reportPath}`);
+
+    const jsonReportPath = writeJsonReport(summary, recommendations, qualityGatesResult);
+    console.log('');
+    console.log(`JSON report:\n${jsonReportPath}`);
 
     if (!qualityGatesResult.overallPassed) {
       process.exit(1);
