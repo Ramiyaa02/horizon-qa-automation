@@ -9,6 +9,7 @@
 import { validateUrl } from '../src/validate-url';
 import { runLighthouse } from '../src/run-lighthouse';
 import { parseLighthouseResult } from '../src/parse-results';
+import { generateRecommendations, type Recommendation } from '../src/rule-engine';
 
 function printSummary(summary: ReturnType<typeof parseLighthouseResult>): void {
   console.log('');
@@ -22,6 +23,27 @@ function printSummary(summary: ReturnType<typeof parseLighthouseResult>): void {
   for (const metric of summary.coreMetrics) {
     const value = metric.displayValue ?? 'N/A';
     console.log(`${metric.title}:${' '.repeat(Math.max(1, 18 - metric.title.length))}${value}`);
+  }
+}
+
+function printRecommendations(recommendations: Recommendation[]): void {
+  console.log('');
+  console.log('Recommendations');
+  console.log('────────────────────────────────────');
+
+  if (recommendations.length === 0) {
+    console.log('No actionable issues detected.');
+    return;
+  }
+
+  for (const rec of recommendations) {
+    const severity = rec.severity.toUpperCase();
+    const title = rec.title;
+    const fix = rec.fix;
+
+    console.log(`[${severity}] ${title}`);
+    console.log(`Fix: ${fix}`);
+    console.log('');
   }
 }
 
@@ -43,9 +65,11 @@ async function main(): Promise<void> {
 
     const rawResult = await runLighthouse(url);
     const summary = parseLighthouseResult(rawResult);
+    const recommendations = generateRecommendations(summary);
 
     console.log('Lighthouse scan completed successfully.');
     printSummary(summary);
+    printRecommendations(recommendations);
   } catch (error) {
     console.error(`Error: ${(error as Error).message}`);
     process.exit(1);
