@@ -1,15 +1,24 @@
 #!/usr/bin/env ts-node
 /**
- * Lighthouse Audit CLI — Phase 3 Step 2 execution + Step 3 summary.
+ * Lighthouse Audit CLI — Phase 3 Step 2 execution + Step 3 summary + Step 4 quality gates.
  *
  * Usage:
  *   npm run lh -- https://example.com
  */
 
+import * as fs from 'fs';
+import * as path from 'path';
 import { validateUrl } from '../src/validate-url';
 import { runLighthouse } from '../src/run-lighthouse';
 import { parseLighthouseResult } from '../src/parse-results';
 import { generateRecommendations, type Recommendation } from '../src/rule-engine';
+import { evaluateQualityGates, type QualityGateConfig, type QualityGatesResult } from '../src/gates';
+
+function loadQualityGatesConfig(): QualityGateConfig {
+  const configPath = path.resolve(__dirname, '..', 'config', 'quality-gates.json');
+  const content = fs.readFileSync(configPath, 'utf-8');
+  return JSON.parse(content) as QualityGateConfig;
+}
 
 function printSummary(summary: ReturnType<typeof parseLighthouseResult>): void {
   console.log('');
@@ -47,6 +56,21 @@ function printRecommendations(recommendations: Recommendation[]): void {
   }
 }
 
+function printQualityGates(result: QualityGatesResult): void {
+  console.log('');
+  console.log('Quality Gates');
+  console.log('────────────────────────────────────');
+
+  for (const gate of result.gates) {
+    const status = gate.passed ? 'PASS' : 'FAIL';
+    const actual = gate.actual !== null ? gate.actual : 'N/A';
+    console.log(`${gate.category}:${' '.repeat(Math.max(1, 18 - gate.category.length))}${actual} / ${gate.minimum}   ${status}`);
+  }
+
+  console.log('');
+  console.log(`Overall: ${result.overallPassed ? 'PASS' : 'FAIL'}`);
+}
+
 async function main(): Promise<void> {
   const target = process.argv[2];
 
@@ -66,10 +90,17 @@ async function main(): Promise<void> {
     const rawResult = await runLighthouse(url);
     const summary = parseLighthouseResult(rawResult);
     const recommendations = generateRecommendations(summary);
+    const qualityGatesConfig = loadQualityGatesConfig();
+    const qualityGatesResult = evaluateQualityGates(summary, qualityGatesConfig);
 
     console.log('Lighthouse scan completed successfully.');
     printSummary(summary);
     printRecommendations(recommendations);
+    printQualityGates(qualityGatesResult);
+
+    if (!qualityGatesResult.overallPassed) {
+      process.exit(1);
+    }
   } catch (error) {
     console.error(`Error: ${(error as Error).message}`);
     process.exit(1);
