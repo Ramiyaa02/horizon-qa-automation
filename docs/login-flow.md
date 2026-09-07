@@ -78,6 +78,11 @@ Observed on the `/signin` page (screenshot `02-after-login-click.png`):
     placeholder `"Enter your password"`, `required=false` in the DOM.
 - Primary submit button: **"Login Now"** (`type="submit"`), Material UI
   styled (`MuiButtonBase-root MuiButton-root`).
+- **Verified behavior:** when either the email or password field is empty,
+  the "Login Now" button is disabled (`disabled` attribute present,
+  `Mui-disabled` class applied). No browser-native validation popup and no
+  application error message is shown for empty fields; submission is
+  prevented entirely by the disabled button.
 - Secondary options observed: "Forget Password ?" link,
   "Continue as Guest" button, "Don't Have An Account? **Sign Up**".
 - Social/footer buttons (Facebook, YouTube, Twitter, Terms and Conditions,
@@ -86,10 +91,16 @@ Observed on the `/signin` page (screenshot `02-after-login-click.png`):
   links misusing submit semantics; **not verified** whether they trigger
   social login.
 - No visible CAPTCHA, OTP field, or MFA step on the initial form.
+- **Invalid credentials behavior (verified):** when both fields are filled
+  with invalid data (`qa.invalid@example.com` / `InvalidPassword123!`) and
+  submitted, the application displays the error message:
+  **"The email address or password are incorrect."**
+  The page remains on `/signin`. This message was observed in the live DOM
+  and is the only reliable validation/error state currently identified.
 - Authentication mechanism: **Not verified.** The Firebase SDK was observed
   in console logs attempting service-worker registration, suggesting a
   Firebase-backed backend, but no authentication request/response was
-  captured because no credentials were submitted.
+  captured because no real credentials were submitted.
 
 ## 7. Successful Authentication State
 

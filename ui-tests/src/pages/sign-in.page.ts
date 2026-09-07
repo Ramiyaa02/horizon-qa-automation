@@ -19,4 +19,8 @@ export class SignInPage {
     await expect(this.passwordInput).toBeVisible();
     await expect(this.loginNowButton).toBeVisible();
   }
+
+  getErrorMessage() {
+    return this.page.getByText('The email address or password are incorrect.');
+  }
 }
