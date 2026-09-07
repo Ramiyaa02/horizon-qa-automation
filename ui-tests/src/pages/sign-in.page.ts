@@ -23,4 +23,10 @@ export class SignInPage {
   getErrorMessage() {
     return this.page.getByText('The email address or password are incorrect.');
   }
+
+  async login(email: string, password: string) {
+    await this.emailInput.fill(email);
+    await this.passwordInput.fill(password);
+    await this.loginNowButton.click();
+  }
 }

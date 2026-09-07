@@ -1,4 +1,8 @@
 import { defineConfig } from '@playwright/test';
+import * as path from 'path';
+import * as dotenv from 'dotenv';
+
+dotenv.config({ path: path.resolve(__dirname, '..', '.env') });
 
 /**
  * Playwright configuration for the login automation suite.
